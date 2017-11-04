@@ -1,18 +1,21 @@
 package registry
 
 import (
+	"github.com/docker/distribution"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	_ "github.com/docker/distribution/manifest/schema2"
+	_ "github.com/docker/distribution/manifest/schema1"
 )
 
 const (
 	MediaTypeManifest = "application/vnd.docker.distribution.manifest.v2+json"
 )
 
-func ListTags(endpoint, repoName string, token AccessToken) ([]string, error) {
-	url := BuildTagListURL(endpoint, repoName)
+func (rc  *RegistryClient) ListTags(repoName string, token AccessToken) ([]string, error) {
+	url := BuildTagListURL(rc.RegServer, repoName)
 	fmt.Println(url)
 	r, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
@@ -35,8 +38,8 @@ func ListTags(endpoint, repoName string, token AccessToken) ([]string, error) {
 	return nil, nil
 }
 
-func PullManifest(endpoint, repoName, reference string, token AccessToken) ([]byte, error) {
-	url := BuildManifestURL(endpoint, repoName, reference)
+func (rc  *RegistryClient) PullManifest(repoName, reference string, token AccessToken) ([]byte, error) {
+	url := BuildManifestURL(rc.RegServer, repoName, reference)
 	fmt.Println(url)
 	r, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
@@ -61,8 +64,24 @@ func PullManifest(endpoint, repoName, reference string, token AccessToken) ([]by
 	return b, nil
 }
 
-func PullBlob(endpoint, repoName, digest string, token AccessToken) (size int64, data []byte, err error) {
-	url := BuildBlobURL(endpoint, repoName, digest)
+func (rc *RegistryClient) PullManifestAsObjects(repoName, reference string,
+	 token AccessToken) (m distribution.Manifest, d distribution.Descriptor, err error) {
+	var b []byte
+	b, err = rc.PullManifest(repoName, reference, token)
+	if err!=nil{
+		fmt.Println(err)
+		return
+	}
+	m, d, err = distribution.UnmarshalManifest(MediaTypeManifest, b)
+	if err!=nil{
+		fmt.Println(err)
+		return
+	}
+	return m, d, err
+}
+
+func (rc  *RegistryClient) PullBlob(repoName, digest string, token AccessToken) (size int64, data []byte, err error) {
+	url := BuildBlobURL(rc.RegServer, repoName, digest)
 	fmt.Println(url)
 	r, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {

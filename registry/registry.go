@@ -6,9 +6,20 @@ import (
 	"io/ioutil"
 	"net/http"
 )
+type RegistryClient struct {
+	TokenServer string
+	RegServer string
+}
 
-func Catalog(endpoint string, token AccessToken) {
-	url := BuildCatalogUrl(endpoint)
+func NewRegistryClient(tokenServer, regServer string) *RegistryClient{
+	return &RegistryClient{
+		TokenServer:tokenServer,
+		RegServer:regServer,
+	}
+}
+
+func (rc  *RegistryClient) Catalog(token AccessToken) {
+	url := BuildCatalogUrl(rc.RegServer)
 	fmt.Println(url)
 	r, err := http.NewRequest("GET", url, nil)
 	if err != nil {
