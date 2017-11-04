@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/zdq0394/registry-go-client/registry"
+	"github.com/docker/distribution"
+	_ "github.com/docker/distribution/manifest/schema2"
 )
 
 func getToken(userName, pass string, scopes []string) (registry.AccessToken, error) {
@@ -38,7 +40,22 @@ func getManifestOfImage(endpoint, repoName, tag string, userName, pass string) {
 		"repository:library/redis:*",
 	}
 	t, _ := getToken(userName, pass, scopes)
-	registry.PullManifest(endpoint, repoName, tag, t)
+	b, err:=registry.PullManifest(endpoint, repoName, tag, t)
+	if err !=nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(string(b))
+	m, d, err:=distribution.UnmarshalManifest("application/vnd.docker.distribution.manifest.v2+json", b)
+	if err !=nil {
+		fmt.Println(err)
+	}
+    
+	fmt.Println(d.MediaType, d.Digest, d.Size)
+
+	for _, r:=range m.References() {
+		fmt.Println(r.MediaType, r.Digest, r.Size)
+	}
 }
 func getImageSize(endpoint, repoName, tag string, userName, pass string) {
 	scopes := []string{
@@ -54,8 +71,8 @@ func main() {
 	pass := "you-never-know"
 	//getToken(userName, "keadmin", []string{"repository:library/redis:*"})
 	endpoint := "https://reg-dev.cloudappl.com"
-	getCatalog(endpoint, userName, pass)
+	//getCatalog(endpoint, userName, pass)
 	//getRepoTagsByName(endpoint, userName, pass, )
-	//getManifestOfImage(endpoint, "library/redis", "latest", userName, pass)
+	getManifestOfImage(endpoint, "library/redis", "latest", userName, pass)
 	//getImageSize(endpoint, "library/redis", "sha256:481995377a044d40ca3358e4203fe95eca1d58b98a1d4c2d9cec51c0c4569613", userName, pass)
 }
