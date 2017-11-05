@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"encoding/json"
 	"github.com/docker/distribution"
 	"fmt"
 	"io/ioutil"
@@ -8,6 +9,7 @@ import (
 	"strconv"
 	_ "github.com/docker/distribution/manifest/schema2"
 	_ "github.com/docker/distribution/manifest/schema1"
+	"github.com/docker/docker/image"
 )
 
 const (
@@ -104,4 +106,19 @@ func (rc  *RegistryClient) PullBlob(repoName, digest string, token AccessToken) 
 	}
 	defer resp.Body.Close()
 	return
+}
+
+func (rc  *RegistryClient) PullBlobAsObject(repoName, digest string, 
+	token AccessToken) (i image.Image, err error) {
+		_, data, err:=rc.PullBlob(repoName, digest, token)
+		if err!=nil{
+			fmt.Println(err)
+			return
+		}
+		err = json.Unmarshal(data, &i)
+		if err!=nil{
+			fmt.Println(err)
+			return
+		}
+		return 
 }

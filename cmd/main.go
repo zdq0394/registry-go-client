@@ -68,6 +68,10 @@ func getImageConfigBlob(repoName, tag string, userName, pass string) {
 	c := getRegistryClient()
 	_, b, _ := c.PullBlob(repoName, tag, t)
 	fmt.Println(string(b))
+	i, _:=c.PullBlobAsObject(repoName, tag, t)
+	fmt.Println(i.Architecture)
+	fmt.Println(i.Config.Cmd)
+	fmt.Println(i.Config.Entrypoint)
 }
 
 func getImageSize(repoName, tag string, userName, pass string) {
@@ -84,6 +88,7 @@ func getImageSize(repoName, tag string, userName, pass string) {
 	}
 	fmt.Printf("Size in Bytes: %d Bytes\n", size)
 	fmt.Printf("Size in MB: %d MBytes\n", size/(1024*1024))
+
 }
 
 func main() {
@@ -93,6 +98,7 @@ func main() {
 	//getCatalog(userName, pass)
 	//getRepoTagsByName(userName, pass, )
 	//getManifestOfImage("library/redis", "latest", userName, pass)
-	//getImageConfigBlob("library/redis", "sha256:481995377a044d40ca3358e4203fe95eca1d58b98a1d4c2d9cec51c0c4569613", userName, pass)
-	getImageSize("library/redis", "latest", userName, pass)
+	getImageConfigBlob("library/redis", "sha256:481995377a044d40ca3358e4203fe95eca1d58b98a1d4c2d9cec51c0c4569613", userName, pass)
+	//getImageSize("library/redis", "latest", userName, pass)
+	
 }
