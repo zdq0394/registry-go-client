@@ -3,16 +3,16 @@ package main
 import (
 	"fmt"
 
-	"github.com/zdq0394/registry-go-client/registry"
 	_ "github.com/docker/distribution/manifest/schema2"
+	"github.com/zdq0394/registry-go-client/registry"
 )
 
-const(
+const (
 	TokenServer = "https://authgate-dev.cloudappl.com/v2/token"
-	RegServer = "https://reg-dev.cloudappl.com"
+	RegServer   = "https://reg-dev.cloudappl.com"
 )
 
-func getRegistryClient() *registry.RegistryClient{
+func getRegistryClient() *registry.RegistryClient {
 	return registry.NewRegistryClient(TokenServer, RegServer)
 }
 
@@ -52,8 +52,8 @@ func getManifestOfImage(repoName, tag string, userName, pass string) {
 	}
 	t, _ := getToken(userName, pass, scopes)
 	c := getRegistryClient()
-	b, err:=c.PullManifest(repoName, tag, t)
-	if err !=nil {
+	b, err := c.PullManifest(repoName, tag, t)
+	if err != nil {
 		fmt.Println(err)
 		return
 	}
@@ -68,7 +68,7 @@ func getImageConfigBlob(repoName, tag string, userName, pass string) {
 	c := getRegistryClient()
 	_, b, _ := c.PullBlob(repoName, tag, t)
 	fmt.Println(string(b))
-	i, _:=c.PullBlobAsObject(repoName, tag, t)
+	i, _ := c.PullBlobAsObject(repoName, tag, t)
 	fmt.Println(i.Architecture)
 	fmt.Println(i.Config.Cmd)
 	fmt.Println(i.Config.Entrypoint)
@@ -80,14 +80,14 @@ func getImageSize(repoName, tag string, userName, pass string) {
 	}
 	t, _ := getToken(userName, pass, scopes)
 	c := getRegistryClient()
-	m, d, _:=c.PullManifestAsObjects(repoName, tag, t)
+	m, d, _ := c.PullManifestAsObjects(repoName, tag, t)
 	var size int64
 	size += d.Size
-	for _, r:= range m.References() {
+	for _, r := range m.References() {
 		size += r.Size
 	}
 	fmt.Printf("Size in Bytes: %d Bytes\n", size)
-	fmt.Printf("Size in MB: %d MBytes\n", size/(1024*1024))
+	fmt.Printf("Size in MB: %d MBytes\n", size/(1000*1000))
 
 }
 
@@ -98,7 +98,7 @@ func main() {
 	//getCatalog(userName, pass)
 	//getRepoTagsByName(userName, pass, )
 	//getManifestOfImage("library/redis", "latest", userName, pass)
-	getImageConfigBlob("library/redis", "sha256:481995377a044d40ca3358e4203fe95eca1d58b98a1d4c2d9cec51c0c4569613", userName, pass)
-	//getImageSize("library/redis", "latest", userName, pass)
-	
+	//getImageConfigBlob("library/redis", "sha256:1fb7b6c8c0d0713640c99dc75f7f39849cb9fc5619c1ba4ff6da286e6af759ee", userName, pass)
+	getImageSize("library/redis", "latest", userName, pass)
+
 }
