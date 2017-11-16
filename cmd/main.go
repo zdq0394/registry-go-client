@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	TokenServer = "https://authgate-dev.cloudappl.com/v2/token"
-	RegServer   = "https://reg-dev.cloudappl.com"
+	TokenServer = "https://authgate.qiniu.com/v2/token"
+	RegServer   = "https://reg.qiniu.com"
 )
 
 func getRegistryClient() *registry.RegistryClient {
@@ -17,8 +17,7 @@ func getRegistryClient() *registry.RegistryClient {
 }
 
 func getToken(userName, pass string, scopes []string) (registry.AccessToken, error) {
-	tokenEnp := "https://authgate-dev.cloudappl.com/v2/token"
-	accessToken, err := registry.GetTokenByBasicAuth(tokenEnp, userName, pass, scopes)
+	accessToken, err := registry.GetTokenByBasicAuth(TokenServer, userName, pass, scopes)
 	if err != nil {
 		fmt.Println(err)
 		return accessToken, err
@@ -87,18 +86,18 @@ func getImageSize(repoName, tag string, userName, pass string) {
 		size += r.Size
 	}
 	fmt.Printf("Size in Bytes: %d Bytes\n", size)
-	fmt.Printf("Size in MB: %d MBytes\n", size/(1000*1000))
+	fmt.Printf("Size in MB: %f MBytes\n", float64(size)/(1024*1024))
 
 }
 
 func main() {
-	userName := "test"
-	pass := "you-never-know"
+	userName := "admin"
+	pass := "AdMiN@KiRk"
 	//getToken(userName, "keadmin", []string{"repository:library/redis:*"})
 	//getCatalog(userName, pass)
 	//getRepoTagsByName(userName, pass, )
 	//getManifestOfImage("library/redis", "latest", userName, pass)
 	//getImageConfigBlob("library/redis", "sha256:1fb7b6c8c0d0713640c99dc75f7f39849cb9fc5619c1ba4ff6da286e6af759ee", userName, pass)
-	getImageSize("library/redis", "latest", userName, pass)
+	getImageSize("u-1380469282-default/mysql", "5.6", userName, pass)
 
 }
