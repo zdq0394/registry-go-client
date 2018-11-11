@@ -18,7 +18,6 @@ func getDefaultHTTPClient() *http.Client {
 	}
 	return client
 }
-
 func getBearerTokenClient(token string) *http.Client {
 	return &http.Client{
 		Transport: NewBearerTokenTransport(token, http.DefaultTransport),
