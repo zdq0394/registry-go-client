@@ -1,11 +1,5 @@
 package registry
 
-type AccessToken struct {
-	Token     string `json:"token"`
-	ExpiresIn int    `json:"expires_in"`
-	IssuedAt  string `json:"issued_at"`
-}
-
 type CatalogResp struct {
 	Repositories []string `json:"repositories"`
 }

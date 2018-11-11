@@ -31,8 +31,7 @@ func (rc *Registry) Catalog() {
 		fmt.Println(err)
 		return
 	}
-	client := getDefaultHTTPClient()
-	resp, err := client.Do(r)
+	resp, err := rc.Client.Do(r)
 	if err != nil {
 		fmt.Println(err)
 		return

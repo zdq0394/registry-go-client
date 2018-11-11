@@ -17,7 +17,7 @@ const (
 	MediaTypeManifest = "application/vnd.docker.distribution.manifest.v2+json"
 )
 
-func (rc *Registry) ListTags(repoName string, token AccessToken) ([]string, error) {
+func (rc *Registry) ListTags(repoName string) ([]string, error) {
 	url := rc.tagListURL(repoName)
 	fmt.Println(url)
 	r, err := http.NewRequest(http.MethodGet, url, nil)
@@ -25,8 +25,7 @@ func (rc *Registry) ListTags(repoName string, token AccessToken) ([]string, erro
 		fmt.Println(err)
 		return nil, err
 	}
-	client := getBearerTokenClient(token.Token)
-	resp, err := client.Do(r)
+	resp, err := rc.Client.Do(r)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -41,7 +40,7 @@ func (rc *Registry) ListTags(repoName string, token AccessToken) ([]string, erro
 	return nil, nil
 }
 
-func (rc *Registry) PullManifest(repoName, reference string, token AccessToken) ([]byte, error) {
+func (rc *Registry) PullManifest(repoName, reference string) ([]byte, error) {
 	url := rc.manifestPullURL(repoName, reference)
 	fmt.Println(url)
 	r, err := http.NewRequest(http.MethodGet, url, nil)
@@ -51,8 +50,7 @@ func (rc *Registry) PullManifest(repoName, reference string, token AccessToken) 
 	}
 
 	r.Header.Add(http.CanonicalHeaderKey("Accept"), MediaTypeManifest)
-	client := getBearerTokenClient(token.Token)
-	resp, err := client.Do(r)
+	resp, err := rc.Client.Do(r)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -67,9 +65,9 @@ func (rc *Registry) PullManifest(repoName, reference string, token AccessToken) 
 	return b, nil
 }
 
-func (rc *Registry) PullManifestAsObjects(repoName, reference string, token AccessToken) (m distribution.Manifest, d distribution.Descriptor, err error) {
+func (rc *Registry) PullManifestAsObjects(repoName, reference string) (m distribution.Manifest, d distribution.Descriptor, err error) {
 	var b []byte
-	b, err = rc.PullManifest(repoName, reference, token)
+	b, err = rc.PullManifest(repoName, reference)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -82,16 +80,16 @@ func (rc *Registry) PullManifestAsObjects(repoName, reference string, token Acce
 	return m, d, err
 }
 
-func (rc *Registry) PullBlob(repoName, digest string, token AccessToken) (size int64, data []byte, err error) {
-	url := rc.blobPullURL(repoName, digest)
+func (rc *Registry) PullBlob(repoName, reference string) (size int64, data []byte, err error) {
+	url := rc.blobPullURL(repoName, reference)
 	fmt.Println(url)
 	r, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		fmt.Println(err)
 		return 0, nil, err
 	}
-	client := getBearerTokenClient(token.Token)
-	resp, err := client.Do(r)
+
+	resp, err := rc.Client.Do(r)
 	if err != nil {
 		fmt.Println(err)
 		return 0, nil, err
@@ -108,8 +106,8 @@ func (rc *Registry) PullBlob(repoName, digest string, token AccessToken) (size i
 	return
 }
 
-func (rc *Registry) PullBlobAsObject(repoName, digest string, token AccessToken) (i image.Image, err error) {
-	_, data, err := rc.PullBlob(repoName, digest, token)
+func (rc *Registry) PullBlobAsObject(repoName, reference string) (i image.Image, err error) {
+	_, data, err := rc.PullBlob(repoName, reference)
 	if err != nil {
 		fmt.Println(err)
 		return
