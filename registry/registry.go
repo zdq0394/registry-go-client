@@ -23,10 +23,13 @@ func NewRegistry(regServer string, token string) *Registry {
 	return r
 }
 
+func DefaultRegistry() *Registry {
+	return NewRegistry("https://registry.docker-cn.com", "")
+}
+
 type CatalogResp struct {
 	Repositories []string `json:"repositories"`
 }
-
 
 func (rc *Registry) Catalog() {
 	url := rc.catalogUrl()
