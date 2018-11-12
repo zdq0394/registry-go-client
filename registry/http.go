@@ -14,7 +14,7 @@ func getDefaultHTTPClient() *http.Client {
 	}
 	client := &http.Client{
 		Transport: t,
-		Timeout:   30 * time.Second,
+		Timeout:   300 * time.Second,
 	}
 	return client
 }

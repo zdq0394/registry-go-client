@@ -30,18 +30,12 @@ func (p *Puller) Pull(repoName, reference string) error {
 		fmt.Println(err)
 		return err
 	} else {
-		ref := m2.Config.Digest.String()
-		fmt.Println(ref)
-		d, _, _ := p.PullConfig(repoName, ref)
-		filePath := fmt.Sprintf("%s%c%s", p.localDir, os.PathSeparator, ref[7:])
-		fmt.Println(filePath)
-		f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0666)
-		if err != nil {
-			fmt.Println(err)
-			return err
+		ref := m2.Target().Digest.String()
+		p.PullConfig(repoName, ref)
+		for _, layer := range m2.Layers {
+			lref := layer.Digest.String()
+			p.PullLayer(repoName, lref)
 		}
-		f.Write(d)
-		f.Close()
 	}
 	return nil
 }
@@ -57,15 +51,33 @@ func (p *Puller) PullConfig(repoName, reference string) (data []byte, i image.Im
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(string(data))
+	filePath := fmt.Sprintf("%s%c%s", p.localDir, os.PathSeparator, reference[7:])
+	fmt.Println(filePath)
+	f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	f.Write(data)
+	f.Close()
 	return
 }
 
-// func (p *Puller) PullLayer(repoName, reference string) (err error) {
-// 	var data []byte
-// 	_, data, err = p.registry.PullBlob(repoName, reference)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		return
-// 	}
-// }
+func (p *Puller) PullLayer(repoName, reference string) (err error) {
+	var data []byte
+	_, data, err = p.registry.PullBlob(repoName, reference)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	filePath := fmt.Sprintf("%s%c%s.tar.gz", p.localDir, os.PathSeparator, reference[7:])
+	fmt.Println(filePath)
+	f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	f.Write(data)
+	f.Close()
+	return
+}

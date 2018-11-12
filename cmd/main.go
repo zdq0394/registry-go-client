@@ -29,6 +29,6 @@ func pullManifest() {
 }
 
 func main() {
-	puller := pull.NewPuller(nil, fmt.Sprintf("D:"))
-	puller.Pull("library/nginx", "latest")
+	puller := pull.NewPuller(nil, fmt.Sprintf("D:\\var\\lib\\docker\\images"))
+	puller.Pull("library/busybox", "latest")
 }
