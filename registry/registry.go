@@ -23,6 +23,11 @@ func NewRegistry(regServer string, token string) *Registry {
 	return r
 }
 
+type CatalogResp struct {
+	Repositories []string `json:"repositories"`
+}
+
+
 func (rc *Registry) Catalog() {
 	url := rc.catalogUrl()
 	fmt.Println(url)
